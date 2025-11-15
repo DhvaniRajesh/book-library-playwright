@@ -88,6 +88,7 @@ The project follows a **layered architecture** pattern, separating concerns acro
 - **HTML Reporting**: Detailed HTML test reports with traces
 - **API Testing**: Comprehensive API endpoint testing
 - **Streamlined Response Assertions**: by combining Zod validation with toMatchObject, eliminating the need for multiple expect statements
+- **CI/CD Integration**: Includes GitHub Actions workflow for automated test execution in pipelines
 
 ## Prerequisites
 
