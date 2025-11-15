@@ -13,8 +13,13 @@ export const BookSchema = z.object({
 
 export const BookResponseSchema = z.object({
   success: z.boolean(),
-  data: BookSchema
+  data: BookSchema,
+  message: z.string()
 });
+
+export const PartialBookSchema = BookSchema.partial();
+
+export const PartialBookResponseSchema = BookResponseSchema.partial();
 
 export const BookListResponseSchema = z.object({
   success: z.boolean(),
