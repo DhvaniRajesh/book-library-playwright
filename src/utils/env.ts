@@ -6,4 +6,4 @@ dotenv.config({ path: envPath });
 
 export const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 export const AUTH_USERNAME = process.env.AUTH_USERNAME || 'admin';
-export const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'passwordtest123';
+export const AUTH_PASSWORD = process.env.AUTH_PASSWORD;
