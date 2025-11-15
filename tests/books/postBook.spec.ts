@@ -41,7 +41,7 @@ test.describe("Create Book", () => {
       available: true,
     };
 
-    // 2) Create book (requires auth)
+    // 2) Create book 
     const createResult = await createBook(apiRequestContext, payload, token);
 
     expect(createResult.ok).toBeTruthy();
