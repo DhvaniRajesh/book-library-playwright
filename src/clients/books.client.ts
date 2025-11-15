@@ -4,7 +4,7 @@ import type { CreateBookPayload } from '../types/book.dto';
 export const BooksClient = {
   createBook: async (
     request: APIRequestContext,
-    payload: CreateBookPayload,
+    payload: CreateBookPayload | Partial<CreateBookPayload>,
     token?: string
   ): Promise<APIResponse> => {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };

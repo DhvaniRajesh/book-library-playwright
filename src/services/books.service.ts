@@ -8,7 +8,7 @@ import type {
 
 export async function createBook(
   request: APIRequestContext,
-  payload: CreateBookPayload,
+  payload: CreateBookPayload | Partial<CreateBookPayload>,
   token?: string
 ): Promise<{
   status: number;

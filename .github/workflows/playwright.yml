@@ -1,4 +1,5 @@
-name: Playwright Tests
+name: Playwright tests
+
 on:
   workflow_dispatch:
     inputs:
@@ -6,35 +7,83 @@ on:
         description: 'Username'
         required: true
         default: 'admin'
+
 jobs:
   test:
-    timeout-minutes: 60
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 60
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
+      - name: Ensure Docker CLI available
+        run: docker --version
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Ensure docker compose CLI exists (try `docker compose`, fallback to `docker-compose`)
+        run: |
+          if docker compose version >/dev/null 2>&1; then
+            echo "docker compose available"
+          elif command -v docker-compose >/dev/null 2>&1; then
+            echo "docker-compose available"
+          else
+            echo "Installing docker-compose (standalone)..."
+            sudo apt-get update -y
+            sudo apt-get install -y python3-pip
+            sudo pip3 install docker-compose
+          fi
 
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+      - name: Build and start docker-compose (from book-library-api-mock/)
+        run: |
+          COMPOSE_DIR="book-library-api-mock"
+          # prefer modern 'docker compose' when available
+          if docker compose version >/dev/null 2>&1; then
+            docker compose -f "$COMPOSE_DIR/docker-compose.yml" build --pull
+            docker compose -f "$COMPOSE_DIR/docker-compose.yml" up -d
+          else
+            docker-compose -f "$COMPOSE_DIR/docker-compose.yml" build --pull
+            docker-compose -f "$COMPOSE_DIR/docker-compose.yml" up -d
+          fi
 
-    - name: Run Playwright tests
-      env:
-        AUTH_USERNAME: ${{ inputs.username }}
-        AUTH_PASSWORD: ${{ secrets.AUTH_PASSWORD }}
-      run: npx playwright test
+      - name: Wait for API health endpoint
+        run: |
+          # wait-on will poll until the health endpoint responds
+          npx wait-on --timeout 120000 http://localhost:3000/health
 
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 20
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install project dependencies (root)
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        env:
+          BASE_URL: http://localhost:3000
+          AUTH_USERNAME: ${{ inputs.username }}
+          AUTH_PASSWORD: ${{ secrets.AUTH_PASSWORD }}
+        run: |
+          echo "Running Playwright tests against $BASE_URL"
+          npx playwright test --reporter=html
+
+      - name: Upload Playwright report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 20
+
+      - name: Tear down docker-compose services (from book-library-api-mock/)
+        if: ${{ always() }}
+        run: |
+          COMPOSE_DIR="book-library-api-mock"
+          if docker compose version >/dev/null 2>&1; then
+            docker compose -f "$COMPOSE_DIR/docker-compose.yml" down --remove-orphans
+          else
+            docker-compose -f "$COMPOSE_DIR/docker-compose.yml" down --remove-orphans
+          fi
