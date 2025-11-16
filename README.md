@@ -96,6 +96,8 @@ The project follows a **layered architecture** pattern, separating concerns acro
 - **npm**: v9 or higher
 - **Git**: For cloning the repository
 
+- **Important**: Make sure the API is running before running the test steps. Follow `book-library-api-mock/SETUP_GUIDE.md` to start the mock Book Library API.
+
 ## Installation
 
 1. **Clone the repository** (or navigate to the project directory):
