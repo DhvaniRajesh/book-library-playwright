@@ -132,7 +132,12 @@ export async function deleteBook(
   request: APIRequestContext,
   id: string | number,
   token?: string
-): Promise<{ status: number; ok: boolean; body: any; deletedId?: string | number }> {
+): Promise<{
+  status: number;
+  ok: boolean;
+  body: any;
+  deletedId?: string | number;
+}> {
   const res = await BooksClient.deleteBook(request, id, token);
 
   const status = res.status();
@@ -145,4 +150,59 @@ export async function deleteBook(
     body,
     deletedId: (body && (body.deletedId || body.data?.id)) ?? undefined,
   };
+}
+/**
+ * Partially updates a book resource using HTTP PATCH.
+ * Accepts an optional payload and returns the raw response details.
+ *
+ * @async
+ * @param {APIRequestContext} request - Playwright API request context
+ * @param {string | number} id - The unique identifier of the book to patch
+ * @param {Partial<CreateBookPayload>} [payload] - Partial fields to update
+ * @param {string} [token] - Optional bearer token for authorization
+ * @returns {Promise<Object>} Result object containing `status`, `ok`, and `body`
+ *
+ * @example
+ * const result = await patchBook(request, 42, { title: 'Updated' }, token);
+ * if (result.ok) console.log(result.body);
+ */
+export async function patchBook(
+  request: APIRequestContext,
+  id: string | number,
+  payload?: Partial<CreateBookPayload>,
+  token?: string
+): Promise<{ status: number; ok: boolean; body: any }> {
+  const res = await BooksClient.patchBook(request, id, payload, token);
+  const status = res.status();
+  const ok = res.ok();
+  const body = await res.json().catch(() => null);
+  return { status, ok, body };
+}
+
+/**
+ * Sends a raw HTTP request via the BooksClient.requestRaw helper.
+ * Useful for exercising endpoints that don't have a dedicated service method
+ * or for ad-hoc requests in tests.
+ *
+ * @async
+ * @param {APIRequestContext} request - Playwright API request context
+ * @param {"get"|"post"|"put"|"patch"|"delete"|"head"} method - HTTP method to use
+ * @param {string} path - Request path relative to the configured base URL
+ * @param {Object} [options] - Optional request options (data, token, headers)
+ * @returns {Promise<Object>} Result object containing `status`, `ok`, and `body`
+ *
+ * @example
+ * const result = await rawRequest(request, 'get', '/books?limit=10');
+ */
+export async function rawRequest(
+  request: APIRequestContext,
+  method: "get" | "post" | "put" | "patch" | "delete" | "head",
+  path: string,
+  options?: { data?: any; token?: string; headers?: Record<string, string> }
+): Promise<{ status: number; ok: boolean; body: any }> {
+  const res = await BooksClient.requestRaw(request, method, path, options);
+  const status = res.status();
+  const ok = res.ok();
+  const body = await res.json().catch(() => null);
+  return { status, ok, body };
 }

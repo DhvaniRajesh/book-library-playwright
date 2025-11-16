@@ -8,6 +8,7 @@ import { BASE_URL, AUTH_USERNAME, AUTH_PASSWORD } from "../../src/utils/env";
 import { authenticate } from "../../src/services/auth.service";
 import { createBook, deleteBook, updateBook } from "../../src/services/books.service";
 import { CreateBookPayload } from "../../src/types/book.dto";
+import { LoginPayload } from "../../src/clients/auth.client";
 
 test.describe("Auth - login", () => {
   let apiRequestContext: APIRequestContext | null;
@@ -29,7 +30,7 @@ test.describe("Auth - login", () => {
     const result = await authenticate(apiRequestContext, {
       username: AUTH_USERNAME,
       password: AUTH_PASSWORD,
-    });
+    } as LoginPayload);
 
     expect(result.ok).toBeTruthy();
     expect(result.status).toBe(200);

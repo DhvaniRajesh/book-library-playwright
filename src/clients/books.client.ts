@@ -98,4 +98,78 @@ export const BooksClient = {
       headers,
     });
   },
+
+  /**
+   * Updates an existing book in the library.
+   * Sends a PATCH request to update book details. Requires authentication token for authorized endpoints.
+   *
+   * @async
+   * @param {APIRequestContext} request - Playwright API request context
+   * @param {string | number} id - The unique identifier of the book to update
+   * @param {Partial<CreateBookPayload>} payload - Partial book data to update
+   * @param {string} [token] - Optional JWT token for authorization
+   * @returns {Promise<APIResponse>} API response with updated book details
+   */
+  patchBook: async (
+    request: APIRequestContext,
+    id: string | number,
+    payload?: Partial<CreateBookPayload>,
+    token?: string
+  ): Promise<APIResponse> => {
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    if (payload && !headers["Content-Type"])
+      headers["Content-Type"] = "application/json";
+    return request.patch(`/books/${id}`, { data: payload, headers });
+  },
+
+  /**
+   * Generic raw request helper for arbitrary HTTP methods and paths.
+   * Useful for exercising endpoints that don't have a dedicated client method
+   * or for tests that need to craft custom requests.
+   *
+   * @async
+   * @param {APIRequestContext} request - Playwright API request context
+   * @param {"get"|"post"|"put"|"patch"|"delete"|"head"} method - HTTP method to use
+   * @param {string} path - Request path (relative to baseURL)
+   * @param {Object} [options] - Optional request options
+   * @param {any} [options.data] - Optional body payload for methods that accept a body
+   * @param {string} [options.token] - Optional bearer token for Authorization header
+   * @param {Record<string,string>} [options.headers] - Additional headers to include
+   * @returns {Promise<APIResponse>} The raw Playwright API response
+   */
+  requestRaw: async (
+    request: APIRequestContext,
+    method: "get" | "post" | "put" | "patch" | "delete" | "head",
+    path: string,
+    options?: { data?: any; token?: string; headers?: Record<string, string> }
+  ): Promise<APIResponse> => {
+    const headers: Record<string, string> = options?.headers
+      ? { ...options.headers }
+      : {};
+    if (options?.token) headers["Authorization"] = `Bearer ${options.token}`;
+    if (options?.data && !headers["Content-Type"])
+      headers["Content-Type"] = "application/json";
+
+    const opts: any = {};
+    if (options?.data) opts.data = options.data;
+    if (Object.keys(headers).length) opts.headers = headers;
+
+    switch (method) {
+      case "get":
+        return request.get(path, opts);
+      case "post":
+        return request.post(path, opts);
+      case "put":
+        return request.put(path, opts);
+      case "patch":
+        return request.patch(path, opts);
+      case "delete":
+        return request.delete(path, opts);
+      case "head":
+        return request.head(path, opts);
+      default:
+        throw new Error(`Unsupported method: ${method}`);
+    }
+  },
 };

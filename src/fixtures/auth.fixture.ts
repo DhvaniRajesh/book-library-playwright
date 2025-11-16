@@ -1,6 +1,7 @@
 import { test as base, request as playwrightRequest } from '@playwright/test';
 import { authenticate } from '../services/auth.service';
 import { BASE_URL, AUTH_USERNAME, AUTH_PASSWORD } from '../utils/env';
+import { LoginPayload } from '../clients/auth.client';
 
 // Extend Playwright base test
 export const test = base.extend<{
@@ -17,7 +18,7 @@ export const test = base.extend<{
       const result = await authenticate(api, {
         username: AUTH_USERNAME,
         password: AUTH_PASSWORD,
-      });
+      } as LoginPayload);
 
       if (!result.token) {
         throw new Error(
