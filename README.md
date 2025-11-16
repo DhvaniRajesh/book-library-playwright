@@ -127,14 +127,14 @@ The project uses a `.env` file to configure the API base URL and authentication 
 2. **Edit `dev.env`** with your configuration:
    ```dotenv
    BASE_URL=http://localhost:3000
-   USERNAME=admin
-   PASSWORD=
+   AUTH_USERNAME=admin
+   AUTH_PASSWORD=
    ENV=staging
    ```
 
    - `BASE_URL`: The base URL of the Book Library API
-   - `USERNAME`: Authentication username
-   - `PASSWORD`: Authentication password
+   - `AUTH_USERNAME`: Authentication username
+   - `AUTH_PASSWORD`: Authentication password
    - `ENV`: Environment designation (e.g., staging, production)
 
 ### TypeScript Configuration

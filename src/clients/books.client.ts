@@ -1,5 +1,6 @@
 import type { APIRequestContext, APIResponse } from "@playwright/test";
 import type { CreateBookPayload } from "../types/book.dto";
+import { addRequestOptions } from './http.helpers';
 
 /**
  * HTTP client for book-related API endpoints.
@@ -24,15 +25,8 @@ export const BooksClient = {
     payload: CreateBookPayload | Partial<CreateBookPayload>,
     token?: string
   ): Promise<APIResponse> => {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    return request.post("/books", {
-      data: payload,
-      headers,
-    });
+    const opts = addRequestOptions(payload, token);
+    return request.post("/books", opts);
   },
 
   /**
@@ -65,15 +59,8 @@ export const BooksClient = {
     payload: Partial<CreateBookPayload>,
     token?: string
   ): Promise<APIResponse> => {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    return request.put(`/books/${id}`, {
-      data: payload,
-      headers,
-    });
+    const opts = addRequestOptions(payload, token);
+    return request.put(`/books/${id}`, opts);
   },
 
   /**
@@ -91,12 +78,8 @@ export const BooksClient = {
     id: string | number,
     token?: string
   ): Promise<APIResponse> => {
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    return request.delete(`/books/${id}`, {
-      headers,
-    });
+    const opts = addRequestOptions(undefined, token);
+    return request.delete(`/books/${id}`, opts);
   },
 
   /**
@@ -116,11 +99,8 @@ export const BooksClient = {
     payload?: Partial<CreateBookPayload>,
     token?: string
   ): Promise<APIResponse> => {
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-    if (payload && !headers["Content-Type"])
-      headers["Content-Type"] = "application/json";
-    return request.patch(`/books/${id}`, { data: payload, headers });
+    const opts = addRequestOptions(payload, token);
+    return request.patch(`/books/${id}`, opts);
   },
 
   /**
@@ -144,17 +124,7 @@ export const BooksClient = {
     path: string,
     options?: { data?: any; token?: string; headers?: Record<string, string> }
   ): Promise<APIResponse> => {
-    const headers: Record<string, string> = options?.headers
-      ? { ...options.headers }
-      : {};
-    if (options?.token) headers["Authorization"] = `Bearer ${options.token}`;
-    if (options?.data && !headers["Content-Type"])
-      headers["Content-Type"] = "application/json";
-
-    const opts: any = {};
-    if (options?.data) opts.data = options.data;
-    if (Object.keys(headers).length) opts.headers = headers;
-
+    const opts = addRequestOptions(options?.data, options?.token, options?.headers);
     switch (method) {
       case "get":
         return request.get(path, opts);

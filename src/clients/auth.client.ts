@@ -1,4 +1,5 @@
 import type { APIRequestContext, APIResponse } from "@playwright/test";
+import { addRequestOptions } from './http.helpers';
 
 /**
  * Represents the login request payload.
@@ -31,9 +32,7 @@ export const AuthClient = {
     request: APIRequestContext,
     payload: LoginPayload
   ): Promise<APIResponse> => {
-    return request.post("/auth/login", {
-      data: payload,
-      headers: { "Content-Type": "application/json" },
-    });
+    const opts = addRequestOptions(payload);
+    return request.post("/auth/login", opts);
   },
 };

@@ -61,7 +61,7 @@ test.describe("Auth - login", () => {
     if (!apiRequestContext)
       throw new Error("API request context not initialized");
 
-    const result = await authenticate(apiRequestContext, {} as any);
+    const result = await authenticate(apiRequestContext, {} as LoginPayload);
 
     expect(result.status).toBe(400);
 
