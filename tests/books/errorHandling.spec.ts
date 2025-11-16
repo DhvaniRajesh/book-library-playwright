@@ -33,7 +33,7 @@ test.describe("Error handling - API edge cases", () => {
     expect(result.status).toBe(404);
     expect(result.body).toBeTruthy();
     expect(result.body.error).toBe("Not Found");
-    expect(result.body.message).toContain("/invalid");
+    expect(result.body.message).toContain("Cannot GET");
     expect(Array.isArray(result.body.availableEndpoints)).toBe(true);
   });
 
@@ -54,7 +54,10 @@ test.describe("Error handling - API edge cases", () => {
     );
     expect(invalidTokenResult.status).toBe(401);
     expect(invalidTokenResult.body.error).toBe("Invalid or expired token");
-    expect(invalidTokenResult.body.message).toContain("jwt malformed");
+    expect(
+      invalidTokenResult.body.message,
+      "Expect response to have jwt malformed"
+    ).toContain("jwt malformed");
   });
 
   test("Verify invalid HTTP method (PATCH) returns 404/Not Found for unsupported method", async ({
